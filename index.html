@@ -44,6 +44,7 @@
       </a>
       <nav class="hidden md:flex items-center gap-6 text-sm">
         <a href="#services" class="hover:text-brand">Services</a>
+        <a href="#gallery" class="hover:text-brand">Our Work</a>
         <a href="#process" class="hover:text-brand">How it works</a>
         <!-- <a href="#reviews" class="hover:text-brand">Reviews</a> -->
         <a href="#faq" class="hover:text-brand">FAQ</a>
@@ -54,6 +55,7 @@
           <summary class="btn btn-ghost btn-sm">Menu</summary>
           <ul class="menu dropdown-content bg-base-100 rounded-box shadow w-56 mt-2">
             <li><a href="#services">Services</a></li>
+            <li><a href="#gallery">Our Work</a></li>
             <li><a href="#process">How it works</a></li>
             <!-- <li><a href="#reviews">Reviews</a></li> -->
             <li><a href="#faq">FAQ</a></li>
@@ -137,6 +139,23 @@
           </div>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- Gallery -->
+  <section id="gallery" class="py-16 bg-slate-50">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+        <div class="max-w-2xl">
+          <h2 class="text-3xl md:text-4xl font-bold">Recent projects</h2>
+          <p class="mt-3 text-slate-600">A look at the drainage upgrades we complete for homeowners across Southwestern PA. Click any project for a closer view.</p>
+        </div>
+        <div class="md:text-right text-slate-500 text-sm">
+          <p>Drop project photos inside <code>gallery/</code> and list them (one or many) in the gallery items array at the bottom of this file.</p>
+        </div>
+      </div>
+
+      <div id="project-gallery" class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"></div>
     </div>
   </section>
 
@@ -276,6 +295,37 @@
     </div>
   </section>
 
+  <dialog id="gallery-modal" class="modal">
+    <div class="modal-box max-w-5xl">
+      <form method="dialog">
+        <button class="btn btn-sm btn-circle btn-ghost absolute right-3 top-3" aria-label="Close gallery preview">✕</button>
+      </form>
+      <figure class="mt-6 space-y-4">
+        <div class="relative">
+          <img data-modal-image src="" alt="" class="w-full rounded-lg object-cover" loading="lazy" />
+          <div class="pointer-events-none absolute inset-y-0 left-0 right-0 flex items-center justify-between px-2 sm:px-4">
+            <button data-modal-prev type="button" class="pointer-events-auto btn btn-circle btn-sm sm:btn-md hidden" aria-label="Show previous photo">
+              ◀
+            </button>
+            <button data-modal-next type="button" class="pointer-events-auto btn btn-circle btn-sm sm:btn-md hidden" aria-label="Show next photo">
+              ▶
+            </button>
+          </div>
+          <div data-modal-count class="absolute bottom-3 right-4 hidden rounded-full bg-slate-900/70 px-3 py-1 text-xs font-semibold text-white"></div>
+        </div>
+        <div data-modal-thumbs class="flex flex-wrap gap-2 hidden"></div>
+        <figcaption class="space-y-2">
+          <h3 data-modal-title class="text-xl font-semibold"></h3>
+          <p data-modal-location class="text-sm font-medium text-brand hidden"></p>
+          <p data-modal-description class="text-sm text-slate-600 hidden"></p>
+        </figcaption>
+      </figure>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button aria-label="Close gallery preview">close</button>
+    </form>
+  </dialog>
+
   <!-- Footer -->
   <footer class="border-t bg-white">
     <div class="container mx-auto px-4 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
@@ -287,6 +337,279 @@
       </nav>
     </div>
   </footer>
+
+  <script>
+      // Update this list with your own project photos. Each entry controls one gallery tile and its image set.
+      (function () {
+        var galleryItems = [
+          {
+            title: 'French drain installation',
+            location: 'Greensburg, PA',
+            description: 'Replaced failing clay tile with perforated PVC, wrapped in fabric, and restored the lawn.',
+            images: [
+              {
+                src: 'gallery/french-drain-install.jpg',
+                alt: 'Perforated pipe and clean stone set in a new french drain trench.'
+              },
+              {
+                src: 'gallery/french-drain-install-2.jpg',
+                alt: 'French drain trench backfilled and the lawn raked smooth.'
+              }
+            ]
+          },
+          {
+            title: 'Catch basin tie-in',
+            location: 'Mount Pleasant, PA',
+            description: 'Installed a 12" catch basin with sump to keep patio low spots clear after storms.',
+            images: [
+              {
+                src: 'gallery/catch-basin.jpg',
+                alt: 'Catch basin installed in a lawn and tied into a solid discharge line.'
+              },
+              {
+                src: 'gallery/catch-basin-2.jpg',
+                alt: 'Catch basin grate set flush with new river rock around the patio.'
+              },
+              {
+                src: 'gallery/catch-basin-2.jpg',
+                alt: 'Catch basin grate set flush with new river rock around the patio.'
+              },
+              {
+                src: 'gallery/catch-basin-2.jpg',
+                alt: 'Catch basin grate set flush with new river rock around the patio.'
+              }
+            ]
+          },
+          {
+            title: 'Downspout extension',
+            location: 'Scottdale, PA',
+            description: 'Tied four roof drains into a single SDR35 run with cleanouts and daylighted outlet.',
+            images: [
+              {
+                src: 'gallery/downspout-tie-in.jpg',
+                alt: 'Downspout piping routed underground with cleanouts and pop-up emitter.'
+              },
+              {
+                src: 'gallery/downspout-tie-in-2.jpg',
+                alt: 'Pop-up emitter in the lawn with surrounding grading restored.'
+              }
+            ]
+          }
+        ];
+
+        var galleryGrid = document.getElementById('project-gallery');
+        var modal = document.getElementById('gallery-modal');
+        if (!galleryGrid || !modal || !Array.isArray(galleryItems) || galleryItems.length === 0) {
+          return;
+        }
+
+        var modalImage = modal.querySelector('[data-modal-image]');
+        var modalTitle = modal.querySelector('[data-modal-title]');
+        var modalDescription = modal.querySelector('[data-modal-description]');
+        var modalLocation = modal.querySelector('[data-modal-location]');
+        var modalThumbnails = modal.querySelector('[data-modal-thumbs]');
+        var modalPrev = modal.querySelector('[data-modal-prev]');
+        var modalNext = modal.querySelector('[data-modal-next]');
+        var modalCounter = modal.querySelector('[data-modal-count]');
+
+        if (!modalImage || !modalTitle || !modalDescription || !modalLocation || !modalThumbnails || !modalPrev || !modalNext || !modalCounter) {
+          return;
+        }
+
+        var currentProject = null;
+        var currentIndex = 0;
+
+        function renderThumbnails(project) {
+          modalThumbnails.innerHTML = '';
+          var images = project.images || [];
+          if (!images.length || images.length === 1) {
+            modalThumbnails.classList.add('hidden');
+            return;
+          }
+
+          modalThumbnails.classList.remove('hidden');
+
+          images.forEach(function (img, index) {
+            if (!img || !img.src) {
+              return;
+            }
+
+            var thumbButton = document.createElement('button');
+            thumbButton.type = 'button';
+            thumbButton.className = 'h-16 w-20 overflow-hidden rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand';
+            thumbButton.setAttribute('aria-label', 'Show photo ' + (index + 1) + ' of ' + images.length);
+
+            var thumbImg = document.createElement('img');
+            thumbImg.src = img.thumb || img.src;
+            thumbImg.alt = (img.alt || project.title || 'Project photo') + ' thumbnail';
+            thumbImg.loading = 'lazy';
+            thumbImg.className = 'h-full w-full object-cover';
+            thumbButton.appendChild(thumbImg);
+
+            if (index === currentIndex) {
+              thumbButton.classList.add('ring-2', 'ring-brand');
+            }
+
+            thumbButton.addEventListener('click', function () {
+              updateModal(project, index);
+            });
+
+            modalThumbnails.appendChild(thumbButton);
+          });
+        }
+
+        function updateModal(project, index) {
+          var images = project.images || [];
+          if (!images.length) {
+            return;
+          }
+
+          if (index < 0) {
+            index = images.length - 1;
+          }
+
+          if (index >= images.length) {
+            index = 0;
+          }
+
+          currentProject = project;
+          currentIndex = index;
+
+          var imageData = images[currentIndex];
+          modalImage.src = imageData.src;
+          modalImage.alt = imageData.alt || project.title || 'Project photo';
+          modalTitle.textContent = project.title || '';
+
+          if (project.location) {
+            modalLocation.textContent = project.location;
+            modalLocation.classList.remove('hidden');
+          } else {
+            modalLocation.textContent = '';
+            modalLocation.classList.add('hidden');
+          }
+
+          if (project.description) {
+            modalDescription.textContent = project.description;
+            modalDescription.classList.remove('hidden');
+          } else {
+            modalDescription.textContent = '';
+            modalDescription.classList.add('hidden');
+          }
+
+          if (images.length > 1) {
+            modalPrev.classList.remove('hidden');
+            modalNext.classList.remove('hidden');
+            modalPrev.disabled = false;
+            modalNext.disabled = false;
+            modalCounter.textContent = (currentIndex + 1) + ' / ' + images.length;
+            modalCounter.classList.remove('hidden');
+          } else {
+            modalPrev.classList.add('hidden');
+            modalNext.classList.add('hidden');
+            modalPrev.disabled = true;
+            modalNext.disabled = true;
+            modalCounter.textContent = '';
+            modalCounter.classList.add('hidden');
+          }
+
+          renderThumbnails(project);
+        }
+
+        function handlePrevNext(step) {
+          if (!currentProject) {
+            return;
+          }
+          updateModal(currentProject, currentIndex + step);
+        }
+
+        modalPrev.addEventListener('click', function () {
+          handlePrevNext(-1);
+        });
+
+        modalNext.addEventListener('click', function () {
+          handlePrevNext(1);
+        });
+
+        modal.addEventListener('keydown', function (event) {
+          if (event.key === 'ArrowLeft') {
+            event.preventDefault();
+            handlePrevNext(-1);
+          }
+          if (event.key === 'ArrowRight') {
+            event.preventDefault();
+            handlePrevNext(1);
+          }
+        });
+
+        function createGalleryCard(item) {
+          if (!item || !Array.isArray(item.images) || item.images.length === 0) {
+            return null;
+          }
+
+          var primaryImage = item.thumb || (item.images[0] && (item.images[0].thumb || item.images[0].src));
+          if (!primaryImage) {
+            return null;
+          }
+
+          var button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'group relative overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition focus:outline-none focus:ring-2 focus:ring-brand';
+          button.setAttribute('aria-label', (item.title || 'Gallery image') + (item.location ? ', ' + item.location : ''));
+
+          var image = document.createElement('img');
+          image.src = primaryImage;
+          image.alt = (item.images[0] && item.images[0].alt) || item.title || 'Project photo';
+          image.loading = 'lazy';
+          image.className = 'aspect-[4/3] w-full object-cover transition duration-500 group-hover:scale-105';
+          button.appendChild(image);
+
+          var overlay = document.createElement('div');
+          overlay.className = 'absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-900/80 via-slate-900/40 to-transparent p-4 text-left';
+          var title = document.createElement('p');
+          title.className = 'text-base font-semibold text-white';
+          title.textContent = item.title || 'Project photo';
+          overlay.appendChild(title);
+          if (item.location) {
+            var location = document.createElement('p');
+            location.className = 'text-xs text-slate-200/90';
+            location.textContent = item.location;
+            overlay.appendChild(location);
+          }
+          button.appendChild(overlay);
+
+          button.addEventListener('click', function () {
+            updateModal(item, 0);
+
+            if (typeof modal.showModal === 'function') {
+              modal.showModal();
+            } else {
+              modal.setAttribute('open', '');
+            }
+          });
+
+          return button;
+        }
+
+        galleryItems.forEach(function (item) {
+          var card = createGalleryCard(item);
+          if (card) {
+            galleryGrid.appendChild(card);
+          }
+        });
+
+        modal.addEventListener('close', function () {
+          modalImage.src = '';
+          modalThumbnails.innerHTML = '';
+          modalCounter.textContent = '';
+          modalCounter.classList.add('hidden');
+          modalThumbnails.classList.add('hidden');
+          modalPrev.classList.add('hidden');
+          modalNext.classList.add('hidden');
+          currentProject = null;
+          currentIndex = 0;
+        });
+      })();
+  </script>
 
   <!-- LocalBusiness schema -->
   <script type="application/ld+json">
